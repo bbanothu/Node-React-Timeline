@@ -1,0 +1,22 @@
+{
+  "development": {
+
+    "dialect": "postgres",
+    "username": "postgres",
+    "password": "postgres",
+    "database": "finback670_assessment",
+    "hostname": "localhost"
+  },
+  "test": {
+
+    "dialect": "postgres"
+  },
+  "staging": {
+    "dialect": "postgres",
+    "use_env_variable": "DATABASE_URL"
+  },
+  "production": {
+    "dialect": "postgres",
+    "use_env_variable": "DATABASE_URL"
+  }
+}
