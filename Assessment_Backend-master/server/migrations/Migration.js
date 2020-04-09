@@ -1,15 +1,20 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('SampleModels', {
+    return queryInterface.createTable('postGressModel', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID
       },
-      sampleField: {
+      message: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      likes: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+
       },
       createdAt: {
         allowNull: false,
@@ -22,6 +27,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('SampleModels');
+    return queryInterface.dropTable('postGressModel');
   }
 };

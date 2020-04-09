@@ -31,6 +31,7 @@ Object.keys(db).forEach(modelName => {
 });
 
 db.sequelize = sequelize;
+db.sequelize.authenticate().then( () => console.log('database is working')).catch(err=> console.log(err));
 db.Sequelize = Sequelize;
 
 module.exports = db;

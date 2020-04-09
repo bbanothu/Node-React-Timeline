@@ -1,8 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const port = 3000
 const cors = require("cors");
-
 require('dotenv').config();
 
 
@@ -13,8 +13,14 @@ app.use(cors());
 
 require('./server/routes')(app);
 
-app.get('*', (req, res) => res.status(200).send({
-    message: 'Welcome',
-}));
+app.listen(port, () => {
+    console.log(`App running on port ${port}.`)
+})
+
+app.get('/', (req, res) => {
+    res.json({ info: 'Node.js, Express, and Postgres API' })
+});
+
+
 console.log("APP RUNNING");
 module.exports = app;
