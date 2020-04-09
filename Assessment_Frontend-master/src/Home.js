@@ -13,6 +13,7 @@ class Home extends Component {
 
         this.state = {
             myValue: '',
+            myPosts: []
         }
     }
 
@@ -29,7 +30,7 @@ class Home extends Component {
                 console.log(res);
                 console.log(res.data);
             })
-            this.forceUpdate();
+        window.location.reload();
     };
 
     handleDelete(myId) {
@@ -39,6 +40,7 @@ class Home extends Component {
                 console.log(res);
                 console.log(res.data);
             })
+        window.location.reload();
     };
 
     handleSubmit(myMessage) {
@@ -48,14 +50,15 @@ class Home extends Component {
                 console.log(res);
                 console.log(res.data);
             })
+        window.location.reload();
     };
 
-    
 
-	handleChange = (e) => this.setState({
-		myValue: e.target.value
+
+    handleChange = (e) => this.setState({
+        myValue: e.target.value
     })
-    
+
     // Render Function      
     render() {
         const mystyle = {
@@ -120,10 +123,10 @@ class Home extends Component {
                                             multiline
                                             onChange={this.handleChange}
                                         />
-                                        <Button 
-                                        onClick={this.handleSubmit.bind(this, this.state.myValue)} 
-                                        
-                                        variant="contained">Submit Post</Button>
+                                        <Button
+                                            onClick={this.handleSubmit.bind(this, this.state.myValue)}
+
+                                            variant="contained">Submit Post</Button>
                                         {post(data.data)}
                                     </div>
                                 </header>
