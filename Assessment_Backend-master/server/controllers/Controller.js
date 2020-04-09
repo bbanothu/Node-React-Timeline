@@ -1,28 +1,12 @@
 const model = require('../models').postGressModel;
 
-// const sampleEndpoint = async (req, res) => {
-// }
-
+// Get functions
 const sampleEndpoint = async (req, res) => {
     model.create({ message : "hello"}).then(function(task) {
-      // you can now access the newly created task via the variable task
     })
-
-    // SampleModel.query('INSERT INTO users (sampleField) VALUES ($1)', [name], (error, results) => {
-    // if (error) {
-    //   throw error
-    // }
     res.status(201).send(`User added with ID:`)
-  //})
 }
 
-
-const createPost = async (req, res) => {
-  const mymessage = req.body.message;
-  model.create({ message : mymessage}).then(function(task) {
-  })
-  res.status(201).send(`Post Added Successfully`)
-}
 const getAllPosts = async (req, res) => {
   model.findAll({
   }).then(function(posts){
@@ -32,8 +16,56 @@ const getAllPosts = async (req, res) => {
   });
 }
 
+
+// Post functions
+const createPost = async (req, res) => {
+  const mymessage = req.body.message;
+  model.create({ message : mymessage}).then(function(task) {
+  })
+  res.status(201).send(`Post Added Successfully`)
+}
+
+
+const incLikes = async (req, res) => {
+  const myID = req.body.id;
+  console.log(myID)
+  model.increment(
+    {likes: 1 },
+    {where: {id: myID}}
+  )
+  .then(function(rowsUpdated) {
+    res.status(201).send(`Post Added Successfully`)
+  })
+}
+
+const decLikes = async (req, res) => {
+  const myID = req.body.id;
+  console.log(myID)
+  model.decrement(
+    {likes: 1 },
+    {where: {id: myID}}
+  )
+  .then(function(rowsUpdated) {
+    res.status(201).send(`Post Added Successfully`)
+  })
+}
+
+const deletePost = async (req, res) => {
+  const myID = req.body.id;
+  model.destroy(
+    {where: {id: myID}}
+  )
+  .then(function(rowsUpdated) {
+    res.status(201).send(`Post Deleted Successfully`)
+  })
+
+}
+
 module.exports = {
     sampleEndpoint,
     createPost,
-    getAllPosts
+    getAllPosts,
+    incLikes,
+    decLikes,
+    deletePost
 };

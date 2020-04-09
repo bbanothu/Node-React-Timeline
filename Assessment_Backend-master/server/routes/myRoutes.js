@@ -11,4 +11,7 @@ sample.get('/getAllPosts', myController.getAllPosts);
 
 //// All post functions
 sample.post('/createPost', myController.createPost);
+sample.post('/incLikes', myController.incLikes);
+sample.post('/decLikes', myController.decLikes);
+sample.post('/deletePost', myController.deletePost);
 module.exports = sample;
