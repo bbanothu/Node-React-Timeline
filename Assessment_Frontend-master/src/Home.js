@@ -1,33 +1,69 @@
-import React, { useState, Component }from 'react';
+import React, { useState, Component } from 'react';
 import { AppBar, TextField, Button, Toolbar, Typography, Card, CardActions, CardContent } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Async from "react-async"
+import axios from 'axios';
 import './App.css';
 
-// const useStyles = makeStyles({
-//   root: {
-//     minWidth: 275,
-//     marginTop: 25
-//   },
-// });
-
-
 class Home extends Component {
-    // Single fetch
+    constructor(props) {
+        super(props);
+        this.handleLike = this.handleLike.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+
+        this.state = {
+            myValue: '',
+        }
+    }
+
+
     loadJson = () =>
         fetch("http://localhost:3000/api/getAllPosts")
             .then(res => (res.ok ? res : Promise.reject(res)))
             .then(res => res.json())
 
+    handleLike(myId) {
+        console.log(myId)
+        axios.post(`http://localhost:3000/api/incLikes`, { id: myId })
+            .then(res => {
+                console.log(res);
+                console.log(res.data);
+            })
+            this.forceUpdate();
+    };
+
+    handleDelete(myId) {
+        console.log(myId)
+        axios.post(`http://localhost:3000/api/deletePost`, { id: myId })
+            .then(res => {
+                console.log(res);
+                console.log(res.data);
+            })
+    };
+
+    handleSubmit(myMessage) {
+        console.log(myMessage)
+        axios.post(`http://localhost:3000/api/createPost`, { message: myMessage })
+            .then(res => {
+                console.log(res);
+                console.log(res.data);
+            })
+    };
+
+    
+
+	handleChange = (e) => this.setState({
+		myValue: e.target.value
+    })
+    
     // Render Function      
     render() {
-
         const mystyle = {
             root: {
-              minWidth: 275,
-              marginTop: 25
+                minWidth: 275,
+                marginTop: 25
             },
-          }
+        }
         const post = (posts) => {
             if (posts == null) {
                 return (
@@ -35,7 +71,6 @@ class Home extends Component {
                 )
             } else {
                 return (
-                    console.log(posts),
                     <Card className={mystyle}>
                         {posts.map((post, index) => (
                             <div key={index} >
@@ -43,18 +78,20 @@ class Home extends Component {
                                     <Typography >
                                         {post.message}
                                     </Typography>
+                                    <Typography >
+                                        {post.likes}
+                                    </Typography>
                                 </CardContent>
                                 <CardActions>
-                                    <Button size="small">Like</Button>
-                                    <Button size="small">Delete</Button>
+                                    <Button size="small" onClick={this.handleLike.bind(this, post.id)} >Like <p>{posts.likes}</p> </Button>
+                                    <Button size="small" onClick={this.handleDelete.bind(this, post.id)} >Delete</Button>
                                 </CardActions>
                             </div>
-                            ))}
+                        ))}
                     </Card>
                 )
             }
         }
-
         return (
             <Async promiseFn={this.loadJson}>
                 {({ data, error, isLoading }) => {
@@ -68,25 +105,29 @@ class Home extends Component {
                     if (data)
                         return (
                             <div className="App">
-                            <AppBar position="static">
-                              <Toolbar>
-                                <Typography variant="h6">
-                                  FINBACK670 takeee
+                                <AppBar position="static">
+                                    <Toolbar>
+                                        <Typography variant="h6">
+                                            FINBACK670 Assessment
                                 </Typography>
-                              </Toolbar>
-                            </AppBar>
-                            <header className="App-header">
-                              <div className="Newsfeed">
-                                <TextField
-                                  id="standard-multiline-flexible"
-                                  label="New Post"
-                                  multiline
-                                />
-                                <Button variant="contained">Submit Post</Button>
-                                {post(data.data)}
-                              </div>
-                            </header>
-                          </div>
+                                    </Toolbar>
+                                </AppBar>
+                                <header className="App-header">
+                                    <div className="Newsfeed">
+                                        <TextField
+                                            id="standard-multiline-flexible"
+                                            label="New Post"
+                                            multiline
+                                            onChange={this.handleChange}
+                                        />
+                                        <Button 
+                                        onClick={this.handleSubmit.bind(this, this.state.myValue)} 
+                                        
+                                        variant="contained">Submit Post</Button>
+                                        {post(data.data)}
+                                    </div>
+                                </header>
+                            </div>
                         )
                     return null
                 }}

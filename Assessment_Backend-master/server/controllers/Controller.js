@@ -22,7 +22,7 @@ const createPost = async (req, res) => {
   const mymessage = req.body.message;
   model.create({ message : mymessage}).then(function(task) {
   })
-  res.status(201).send(`Post Added Successfully`)
+  res.status(201).send(`Post Created Successfully`)
 }
 
 
@@ -34,7 +34,7 @@ const incLikes = async (req, res) => {
     {where: {id: myID}}
   )
   .then(function(rowsUpdated) {
-    res.status(201).send(`Post Added Successfully`)
+    res.status(201).send(`Post Like Successfully`)
   })
 }
 
@@ -46,7 +46,7 @@ const decLikes = async (req, res) => {
     {where: {id: myID}}
   )
   .then(function(rowsUpdated) {
-    res.status(201).send(`Post Added Successfully`)
+    res.status(201).send(`Post Disliked Successfully`)
   })
 }
 
