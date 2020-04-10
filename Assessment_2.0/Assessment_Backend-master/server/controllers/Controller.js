@@ -1,5 +1,8 @@
 const postsdb = require('../models').posts;
 const usersdb = require('../models').users;
+const likesdb = require('../models').likes;
+const { Op } = require("sequelize");
+
 
 // Get functions
 const sampleEndpoint = async (req, res) => {
@@ -20,13 +23,64 @@ const getAllPosts = async (req, res) => {
   });
 }
 
+const getAllLikes = async (req, res) => {
+  likesdb.findAll(
+    { where: { email: req.body.email  
+    
+    
+    } }
+  )
+  
+    .then(function (posts) {
+    res.send({ data: posts });
+  }).catch(function (err) {
+    console.log('Oops! something went wrong, : ', err);
+  });
+}
+
+const getMyPosts = async (req, res) => {
+  postsdb.findAll(
+    {where: {
+      [Op.or]: [{username: req.body.username}, {username: 'ANON'}]
+    }}
+  )
+  
+    .then(function (posts) {
+    res.send({  data: posts });
+  }).catch(function (err) {
+    console.log('Oops! something went wrong, : ', err);
+  });
+}
+
+
 
 // Post functions
 const createPost = async (req, res) => {
   const mymessage = req.body.message;
-  postsdb.create({ message: mymessage }).then(function (task) {
-  })
+  if(req.body.username){
+    postsdb.create({ message: mymessage , username: req.body.username}).then(function (task) {
+    })
+  }else{
+    postsdb.create({ message: mymessage }).then(function (task) {
+    })
+  }
   res.status(201).send(`Post Created Successfully`)
+}
+
+
+const incLikesUser = async (req, res) => {
+  const myEmail = req.body.email;
+  const myPostId = req.body.postId;
+  likesdb.create({ email: myEmail , postId: myPostId}).then(function (task) {
+  })
+  postsdb.increment(
+    { likes: 1 },
+    { where: { id: myPostId } }
+  )
+  
+    .then(function (rowsUpdated) {
+      res.status(201).send(`Post Like Successfully`)
+    })
 }
 
 
@@ -45,14 +99,31 @@ const incLikes = async (req, res) => {
 const decLikes = async (req, res) => {
   const myID = req.body.id;
   console.log(myID)
-  postsdb.decrement(
-    { likes: 1 },
+  postsdb.increment(
+    { likes: -1 },
     { where: { id: myID } }
   )
     .then(function (rowsUpdated) {
       res.status(201).send(`Post Disliked Successfully`)
     })
 }
+
+const decLikesUser = async (req, res) => {
+  const myEmail = req.body.email;
+  const myPostId = req.body.postId;
+  likesdb.destroy(
+    { where: { postId: myPostId } }
+  )
+  postsdb.increment(
+    { likes: -1 },
+    { where: { id: myPostId } }
+  )
+  
+    .then(function (rowsUpdated) {
+      res.status(201).send(`Liked post deleted Successfully`)
+    })
+}
+
 
 const deletePost = async (req, res) => {
   const myID = req.body.id;
@@ -83,12 +154,12 @@ const createUser = async (req, res) => {
           res.status(201).send(`User created successfully`)
         })
       } else {
-        res.status(201).send(`Email already exists`)
+        res.status(400).send(`Email already exists`)
       }
 
     });
   } else {
-    res.status(201).send(`Please fill out all fields`)
+    res.status(400).send(`Please fill out all fields`)
   }
 }
 
@@ -110,12 +181,14 @@ const loginUser = async (req, res) => {
       console.log(user)
 
       if(user != null){
+        //throw new Error('something bad happened');
         res.status(201).send(user)
       }else{
-        res.status(201).send(`Email or Password is invalid`)
+        //throw new Error('something bad happened');
+        res.status(400).send(`Email or Password is invalid`)
       }
   }else{
-    res.status(201).send(`Please fill out all fields`)
+    res.status(400).send(`Please fill out all fields`)
   }
 }
 
@@ -127,5 +200,9 @@ const loginUser = async (req, res) => {
     decLikes,
     deletePost,
     createUser,
-    loginUser
+    loginUser,
+    incLikesUser,
+    decLikesUser,
+    getAllLikes,
+    getMyPosts
   };

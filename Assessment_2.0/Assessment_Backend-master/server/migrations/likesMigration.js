@@ -1,24 +1,20 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('posts', {
+    return queryInterface.createTable('likes', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID
       },
-      message: {
+      email: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      likes: {
-        type: Sequelize.INTEGER,
+      postId: {
+        type: Sequelize.UUID,
         allowNull: false,
 
-      },
-      username: {
-        allowNull: false,
-        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -30,7 +26,9 @@ module.exports = {
       }
     });
   },
+  
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('posts');
+    return queryInterface.dropTable('likes');
   }
 };
+

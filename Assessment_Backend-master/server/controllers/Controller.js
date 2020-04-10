@@ -1,14 +1,14 @@
-const model = require('../models').postGressModel;
+const postsdb = require('../models').posts;
 
 // Get functions
 const sampleEndpoint = async (req, res) => {
-    model.create({ message : "hello"}).then(function(task) {
+  postsdb.create({ message : "hello"}).then(function(task) {
     })
     res.status(201).send(`User added with ID:`)
 }
 
 const getAllPosts = async (req, res) => {
-  model.findAll({
+  postsdb.findAll({
   }).then(function(posts){
     res.send({message:'posts list',data:posts});
   }).catch(function(err){
@@ -20,7 +20,7 @@ const getAllPosts = async (req, res) => {
 // Post functions
 const createPost = async (req, res) => {
   const mymessage = req.body.message;
-  model.create({ message : mymessage}).then(function(task) {
+  postsdb.create({ message : mymessage}).then(function(task) {
   })
   res.status(201).send(`Post Created Successfully`)
 }
@@ -29,7 +29,7 @@ const createPost = async (req, res) => {
 const incLikes = async (req, res) => {
   const myID = req.body.id;
   console.log(myID)
-  model.increment(
+  postsdb.increment(
     {likes: 1 },
     {where: {id: myID}}
   )
@@ -41,7 +41,7 @@ const incLikes = async (req, res) => {
 const decLikes = async (req, res) => {
   const myID = req.body.id;
   console.log(myID)
-  model.decrement(
+  postsdb.decrement(
     {likes: 1 },
     {where: {id: myID}}
   )
@@ -52,7 +52,7 @@ const decLikes = async (req, res) => {
 
 const deletePost = async (req, res) => {
   const myID = req.body.id;
-  model.destroy(
+  postsdb.destroy(
     {where: {id: myID}}
   )
   .then(function(rowsUpdated) {

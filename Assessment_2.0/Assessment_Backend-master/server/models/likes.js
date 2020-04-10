@@ -1,26 +1,20 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const posts = sequelize.define('posts', {
+  const posts = sequelize.define('likes', {
     id: {
       type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4
     },
-    message: {
+    email: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    likes: {
-      type: DataTypes.INTEGER,
+    postId: {
+      type: DataTypes.UUID,
       allowNull: false,
-      defaultValue: '0'
+      defaultValue: DataTypes.UUIDV4
     },
-    username: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 'ANON'
-    },
-
   }, {
 
     freezeTableName: true,

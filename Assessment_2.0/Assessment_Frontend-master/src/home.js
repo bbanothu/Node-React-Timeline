@@ -1,12 +1,12 @@
 import React, { useState, Component } from 'react';
 import { AppBar, TextField, Toolbar, Typography, Card, CardActions, CardContent } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import Async from "react-async"
 import axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/App.css';
-
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 class Home extends Component {
     constructor(props) {
         super(props);
@@ -15,7 +15,6 @@ class Home extends Component {
 
         this.state = {
             myValue: '',
-            myPosts: []
         }
     }
 
@@ -35,15 +34,15 @@ class Home extends Component {
         window.location.reload();
     };
 
-    handleDelete(myId) {
-        console.log(myId)
-        axios.post(`http://localhost:3000/api/deletePost`, { id: myId })
-            .then(res => {
-                console.log(res);
-                console.log(res.data);
-            })
+    handleDislike(myId) {
+        axios.post(`http://localhost:3000/api/decLikes`, { id: myId })
+          .then(res => {
+            console.log(res);
+            console.log(res.data);
+          })
         window.location.reload();
-    };
+      };
+    
 
     handleSubmit(myMessage) {
         console.log(myMessage)
@@ -63,13 +62,6 @@ class Home extends Component {
 
     // Render Function      
     render() {
-        // const mystyle = {
-        //     root: {
-        //         minWidth: 275,
-        //         marginTop: 25,
-        //         paddingTop: '120px'
-        //     },
-        // }
         const post = (posts) => {
             if (posts == null) {
                 return (
@@ -89,10 +81,13 @@ class Home extends Component {
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
-                                    <Button size="small" variant="outline-success" onClick={this.handleLike.bind(this, post.id)} >Likes &nbsp;        
+                                    <Button size="small" variant="outline-success" onClick={this.handleLike.bind(this, post.id)} >Likes &nbsp;
                                         {post.likes}
-                                   </Button>
-                                    <Button size="small" variant="outline-danger" onClick={this.handleDelete.bind(this, post.id)} >Delete</Button>
+                                    </Button>                                
+                                    <Button size="small" variant="outline-warning" onClick={this.handleDislike.bind(this, post.id)} >Dislike &nbsp;
+                                        {post.likes}
+                                    </Button>
+                                
                                 </CardActions>
                             </div>
                         ))}
@@ -100,50 +95,55 @@ class Home extends Component {
                 )
             }
         }
-        return (
-
-            <Async promiseFn={this.loadJson}>
-                {({ data, error, isLoading }) => {
-                    // if (isLoading) return <div style={{ marginTop: "3em" }}>
-                    //     <img alt="loading" src={Loading} style={{
-                    //         display: "block",
-                    //         marginLeft: "auto",
-                    //         marginRight: "auto"
-                    //     }} ></img></div>
-                    // if (error) return `Something went wrong: ${error.message}`
-                    if (data)
-                        return (
-                            <div className="App">
-                                <AppBar position="static">
-                                    <Toolbar>
-                                        <Typography variant="h6">
-                                            FINBACK670 Assessment
+        const { classes, loginError, isAuthenticated } = this.props;
+        if (isAuthenticated) {
+            return <Redirect to="/user" />;
+        } else {
+            return (
+                <Async promiseFn={this.loadJson}>
+                    {({ data, error, isLoading }) => {
+                        if (data)
+                            return (
+                                <div className="App">
+                                    <AppBar position="static">
+                                        <Toolbar>
+                                            <Typography variant="h6">
+                                                FINBACK670 Assessment
                                 </Typography>
-                                    </Toolbar>
-                                </AppBar>
-                                <header className="App-header">
-                                    <div className="Newsfeed">
-                                        <TextField
-                                            id="standard-multiline-flexible"
-                                            label="New Post"
-                                            multiline
-                                            onChange={this.handleChange}
-                                        />
-                                        <Button
-                                            onClick={this.handleSubmit.bind(this, this.state.myValue)}
-                                            variant="outline-primary">Submit Post
+                                        </Toolbar>
+                                    </AppBar>
+                                    <header className="App-header">
+                                        <div className="Newsfeed">
+                                            <TextField
+                                                id="standard-multiline-flexible"
+                                                label="New Post"
+                                                multiline
+                                                onChange={this.handleChange}
+                                            />
+                                            <Button
+                                                onClick={this.handleSubmit.bind(this, this.state.myValue)}
+                                                variant="outline-primary">Submit Post
                                         </Button>
-                                        <div style={{ paddingTop: '20px' }}>
-                                            {post(data.data)}
+                                            <div style={{ paddingTop: '20px' }}>
+                                                {post(data.data)}
+                                            </div>
                                         </div>
-                                    </div>
-                                </header>
-                            </div>
-                        )
-                    return null
-                }}
-            </Async>
-        );
+                                    </header>
+                                </div>
+                            )
+                        return null
+                    }}
+                </Async>
+            );
+        }
     }
 }
-export default Home;
+function mapStateToProps(state) {
+    return {
+        isLoggingIn: state.auth.isLoggingIn,
+        loginError: state.auth.loginError,
+        isAuthenticated: state.auth.isAuthenticated
+    };
+}
+
+export default connect(mapStateToProps)(Home);

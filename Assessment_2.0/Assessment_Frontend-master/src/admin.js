@@ -1,250 +1,248 @@
-import React, { Component } from "react";
+import React, { useState, Component } from 'react';
+import { AppBar, TextField, Toolbar, Typography, Card, CardActions, CardContent } from '@material-ui/core';
+import Async from "react-async"
+import axios from 'axios';
+import Button from 'react-bootstrap/Button';
 import { connect } from "react-redux";
 import { logoutUser } from "./actions";
-import Async from "react-async"
-import { Tab, TabPanel, Tabs, TabList } from "react-web-tabs";
-import Loading from "./images/loading.svg";
-import "./css/index.css"
-import ExampleComponent from "react-rounded-image";
-class Home extends Component {
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles/App.css';
 
-  // Single fetch
+
+class admin extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      myValue: '',
+      myUser: this.props.user.data,
+      likes: [],
+      posts: [],
+      myPosts:[],
+     
+    }
+    this.handleLike = this.handleLike.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.loadJson1(this.state.myUser)
+    console.log(this.state.myUser.username)
+    //console.log(this.state.myUser)
+  }
+
+
   async loadJson() {
     var data = [];
-    const promise1 = fetch("https://us-central1-portfolio-6b427.cloudfunctions.net/getNewProjects").then(res => res.json())
-    const promise2 = fetch("https://us-central1-portfolio-6b427.cloudfunctions.net/getProjects").then(res => res.json())
-    const promise3 = fetch("https://us-central1-portfolio-6b427.cloudfunctions.net/getNewProjectTasks").then(res => res.json())
-
-    const promise4 = fetch("https://us-central1-portfolio-6b427.cloudfunctions.net/getAboutMe").then(res => res.json())
-    const promise5 = fetch("https://us-central1-portfolio-6b427.cloudfunctions.net/getSkills").then(res => res.json())
-    const promise6 = fetch("https://us-central1-portfolio-6b427.cloudfunctions.net/getWork").then(res => res.json())
-    const promise7 = fetch("https://us-central1-portfolio-6b427.cloudfunctions.net/getHobbies").then(res => res.json())
-
-
-    data = Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7]);
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'a'})
+    };
+    const requestOptions1 = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'a' })
+    };
+    const promise1 = fetch("http://localhost:3000/api/getAllLikes", requestOptions).then(res => res.json())
+    const promise2 = fetch("http://localhost:3000/api/getAllPosts").then(res => res.json())
+    const promise3 = fetch("http://localhost:3000/api/getMyPosts", requestOptions1).then(res => res.json())
+    data = Promise.all([promise1, promise2, promise3 ]);
     return data;
   }
 
 
+   loadJson1(user) {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email})
+    };
+    const requestOptions1 = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: user.username })
+    };
+    fetch("http://localhost:3000/api/getAllLikes", requestOptions).then(res => res.json()).then((data) => {
+      this.setState({ likes: data })
+      console.log(this.state.likes)
+    })
+    fetch("http://localhost:3000/api/getAllPosts").then(res => res.json()).then((data) => {
+      this.setState({ posts: data })
+      console.log(this.state.posts)
+    })
+    fetch("http://localhost:3000/api/getMyPosts", requestOptions1).then(res => res.json()).then((data) => {
+      this.setState({ myPosts: data })
+      console.log(this.state.myPosts)
+    })
+  }
 
+  handleLike(myPostId, myEmail) {
+    axios.post(`http://localhost:3000/api/incLikesUser`, { email: myEmail, postId: myPostId })
+      .then(res => {
+        console.log(res);
+        console.log(res.data);
+      })
+    window.location.reload();
+  };
+
+  handleDislike(myPostId, myEmail) {
+    axios.post(`http://localhost:3000/api/decLikesUser`, { email: myEmail, postId: myPostId })
+      .then(res => {
+        console.log(res);
+        console.log(res.data);
+      })
+    window.location.reload();
+  };
+
+
+  handleDelete(myId) {
+    axios.post(`http://localhost:3000/api/deletePost`, { id: myId })
+      .then(res => {
+        console.log(res);
+        console.log(res.data);
+      })
+    window.location.reload();
+  };
+
+  handleSubmit(myMessage, myUsername) {
+    axios.post(`http://localhost:3000/api/createPost`, { message: myMessage, username: myUsername })
+      .then(res => {
+        console.log(res);
+        console.log(res.data);
+      })
+    window.location.reload();
+  };
+
+
+
+  handleChange = (e) => this.setState({
+    myValue: e.target.value
+  })
+    
   handleLogout = () => {
     const { dispatch } = this.props;
     dispatch(logoutUser());
   };
+
+  contains(a, obj) {
+    if(a == null){
+      return false
+    }
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].postId === obj) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  contains1(a, obj) {
+    if(a == null){
+      return false
+    }
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].id === obj) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   render() {
-    const { isLoggingOut, logoutError } = this.props;
+    const { isLoggingOut, logoutError, user } = this.props;
+    const post = (likes, posts, myPosts) => {
+      if (posts == null) {
+        return (
+          <div></div>
+        )
+      } else {
+        console.log(posts);
+        console.log(likes);
+        console.log(myPosts);
+        return (
+          <Card >
+            {posts.map((post, index) => (
+              <div key={index} >
+                <CardContent >
+                  <Typography style={{ textAlign: "left" }}>
+                    {post.username}
+                  </Typography>
+                  <Typography >
+                    {post.message}
+                  </Typography>
+                </CardContent>
+                <CardActions>
 
-    return (
-      <Async promiseFn={this.loadJson}>
-        {({ data, error, isLoading }) => {
-          if (isLoading) return <div style={{ marginTop: "3em" }}>
-            <img alt="loading" src={Loading} style={{
-              display: "block",
-              marginLeft: "auto",
-              marginRight: "auto"
-            }} ></img></div>
-          if (error) return `Something went wrong: ${error.message}`
-          if (data)
+                  {(() => {
+                    if (this.contains(likes, post.id)) {
+                      return (
+                        <Button size="small" variant="outline-warning" onClick={this.handleDislike.bind(this, post.id)} >Dislike &nbsp;
+                          {post.likes}
+                        </Button>)
+                    } else {
+                      return (
+                        <Button size="small" variant="outline-success" onClick={this.handleLike.bind(this, post.id, user.data.email)} >Likes &nbsp;
+                          {post.likes}
+                        </Button>)
+                    }
+                  })()}
+                 {(() => {
+                    if (this.contains1(myPosts, post.id)) {
+                      return (
+                        <Button size="small" variant="outline-danger" onClick={this.handleDelete.bind(this, post.id)} >Delete</Button>)
+                    } else {
+                    }
+                  })()}
+                </CardActions>
+              </div>
+            ))}
+          </Card>
+        )
+      }
+    }
             return (
-              <div>
-                <Tabs defaultTab={data[0][0].title} vertical style={{ color: "white", marginTop: "3em" }}>
-                  <TabList className="shadow p-3 mb-5 bg-white  mt-4 ml-3 " style={{ height: "80%" }}>
-                    <Tab tabFor="AboutMe" >About Me</Tab>
-                    <Tab tabFor="Skills" >Skills</Tab>
-                    <Tab tabFor="WorkExperience" >Work Experience</Tab>
-                    <Tab tabFor="Hobbies" >Hobbies</Tab>
-                    {data[0].map((project, index) => (
-                      <Tab key={index} tabFor={project.title} >{project.title}</Tab>
-                    ))}
-                    {data[1].map((project, index) => (
-                      <Tab key={index} tabFor={project.title} >{project.title}</Tab>
-                    ))}
-                  </TabList>
-                  <TabPanel tabId="AboutMe" style={{ color: "black", width: "80%" }}>
-                    <div className="shadow p-3 mb-5 mt-4 bg-white  ">
-                      <div className="row">
-                        <div className="col-sm-1">
-                        </div>
-                        <div className="col-sm-6" >
-                          <br />
-                          <h3>{data[3].name}</h3>
-                          <p>{data[3].degree}</p>
-                          <p className="fa fa-graduation-cap"> {data[3].college}</p><br />
+              <div className="App">
+                <AppBar position="static">
+                  <Toolbar>
+                    <Typography variant="h6">
+                      FINBACK670 Assessment
+                    </Typography>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      onClick={this.handleLogout}
+                      style={{ position: "absolute", right: 10 }}>
+                      Logout
+                    </Button>
+                    {isLoggingOut && <p>Logging Out....</p>}
+                    {logoutError && <p>Error logging out</p>}
 
-
-                          <p className="fa fa-map-marker">
-                            <form>
-                              <label>
-                                <input type="text" name="location" defaultValue={data[3].currentlocation} />
-                              </label>
-
-                              <input type="submit" value="Submit" />
-                            </form>
-                          </p>
-                        </div>
-                        <div className="col-sm-5">
-                          <br />
-                          <ExampleComponent
-                            image={data[3].myface}
-                            roundedColor="white"
-                            imageWidth="150"
-                            imageHeight="150"
-                            roundedSize="13"
-                          />
-                        </div>
-                      </div>
+                  </Toolbar>
+                </AppBar>
+                <header className="App-header">
+                  <div className="Newsfeed">
+                    <TextField
+                      id="standard-multiline-flexible"
+                      label="New Post"
+                      multiline
+                      onChange={this.handleChange}
+                    />
+                    <Button
+                      onClick={this.handleSubmit.bind(this, this.state.myValue, user.data.username)}
+                      variant="outline-primary">Submit Post
+                    </Button>
+                    <div style={{ paddingTop: '20px' }}>
+                      {post(this.state.likes.data , this.state.posts.data, this.state.myPosts.data)}
                     </div>
-                  </TabPanel>
-
-                  <TabPanel tabId="Skills" style={{ color: "black", width: "80%" }}>
-                    <div className="shadow p-3 mb-5 mt-4 bg-white  ">
-                      <table className="table  table-borderless" >
-                        <thead>
-                          <tr>
-                            <th scope="col">
-                              <span style={{ display: "inline" }} className="fa fa-pencil"></span>
-                              <span style={{ fontFamily: "Proxima Nova, sans-serif" }}> Skills</span>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td >Languages:<br /><br />
-                              <p id="ovalOutline">English</p>
-                              <p id="ovalOutline">Hindi</p>
-                              <p id="ovalOutline">Telegu</p>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td >Technical Experience: <br /><br />
-                              {data[4].map((skills, index) => (
-                                <p id="ovalOutline" key={index} value={skills} index={index}> {skills.name}</p>
-                              ))}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </TabPanel>
-
-
-                  <TabPanel tabId="WorkExperience" style={{ color: "black", width: "80%" }}>
-                    <div className="shadow p-3 mb-5 mt-4 bg-white  ">
-                      <table className="table  table-borderless">
-                        <thead>
-                          <tr>
-                            <th scope="col">
-                              <span style={{ display: "inline" }} className="fa fa-building"></span>
-                              <span style={{ fontFamily: "Proxima Nova, sans-serif" }}> Work Experience</span>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data[5].map((work, index) => (
-                            <tr key={index}>
-                              <td value={work} index={index}>
-                                <p>{work.company}</p>
-                                <p>{work.role}</p>
-                                <p className="fa fa-calendar"> {work.duration}</p>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </TabPanel>
-
-
-                  <TabPanel tabId="Hobbies" style={{ color: "black", width: "80%" }}>
-                    <div className="shadow p-3 mb-5 mt-4 bg-white  ">
-                      <table className="table  table-borderless">
-                        <thead>
-                          <tr>
-                            <th scope="col">
-                              <span style={{ display: "inline", }} className="fa fa-pencil"></span>
-                              <span style={{ fontFamily: "Proxima Nova, sans-serif" }}> Hobbies</span>
-                            </th>
-                          </tr>
-                          <tr>
-                            <td>
-                              <ul>
-                                {data[6].map((hobbies, index) => (
-                                  <li key={index} value={hobbies} index={index}>{hobbies.name}</li>
-                                ))}
-                              </ul>
-                            </td>
-                          </tr>
-                        </thead>
-                      </table>
-                    </div>
-                  </TabPanel>
-
-                  {data[0].map((project, index) => (
-                    <TabPanel key={index} tabId={project.title} style={{ color: "black", width: "80%" }}>
-                      <div className="shadow p-3 mb-5 bg-white rounded mt-4  ">
-                        <h1><a style={{ textDecoration: "none", color: "black" }} href={project.github}>{project.title}</a></h1>
-                        <p>My Role: {project.role}</p>
-                        <p>Project Description: {project.description}</p>
-                        <p>Technologies Used: {project.tech}</p>
-                      </div>
-                      <div className="shadow p-3 mb-5 bg-white rounded mt-2 ">
-                        <div className="row container table-responsive">
-                          <h3>Current Tasks</h3>
-                          <table className="table table-hover table-borderless ">
-                            <thead className="thead-dark">
-                              <tr>
-                                <th scope="col">Task</th>
-                                <th scope="col">Start Date</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">End Date</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {data[2].filter(project1 => project1.id.includes(project.title)).map((project1, index) => (
-                                <tr key={index} index={index}>
-                                  <th>{project1.task}</th>
-                                  <td>{project1.startdate}</td>
-                                  <td>{project1.status}</td>
-                                  <td>{project1.enddate}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </TabPanel>
-                  ))}
-                  {data[1].map((project, index) => (
-                    <TabPanel key={index} tabId={project.title} style={{ color: "black", width: "80%" }}>
-                      <div className="shadow p-3 mb-5 bg-white rounded mt-4 ml-3 ">
-                        <h1><a style={{ textDecoration: "none", color: "black" }} href={project.github}>{project.title}</a></h1>
-                        <p>My Role: {project.role}</p>
-                        <p>Project Description: {project.description}</p>
-                        <p>Technologies Used: {project.tech}</p>
-                      </div>
-                    </TabPanel>
-                  ))}
-                </Tabs>
-                <div className=" p-3 mb-5  rounded mt-5 ml-3 ">
-                  <button type="button" className="btn btn-primary" onClick={this.handleLogout}>Logout</button>
-                  {isLoggingOut && <p>Logging Out....</p>}
-                  {logoutError && <p>Error logging out</p>}
-                </div>
+                  </div>
+                </header>
               </div>
             )
-          return null
-        }}
-      </Async>
-    );
-
   }
 }
-
 function mapStateToProps(state) {
   return {
     isLoggingOut: state.auth.isLoggingOut,
-    logoutError: state.auth.logoutError
+    logoutError: state.auth.logoutError,
+    user: state.auth.user
   };
 }
 
-export default connect(mapStateToProps)(Home);
+export default connect(mapStateToProps)(admin);

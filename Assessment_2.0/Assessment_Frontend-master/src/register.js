@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import { loginUser } from "./actions";
+import { registerUser } from "./actions";
 import { withStyles } from "@material-ui/styles";
-import { AppBar, TextField, Toolbar, Typography} from '@material-ui/core';
+import { AppBar, TextField, Toolbar, Typography } from '@material-ui/core';
 import Avatar from "@material-ui/core/Avatar";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Paper from "@material-ui/core/Paper";
@@ -38,120 +38,141 @@ const styles = () => ({
   }
 });
 
-class Login extends Component {
-  state = { username: "", email: "", password: "" };
+class register extends Component {
+  state = { myUsername: "", myEmail: "", myPassword: "", myPasswordConf: "", message: "" };
 
   handleUserChange = ({ target }) => {
-    this.setState({ username: target.value });
+    this.setState({ myUsername: target.value });
   };
 
   handleEmailChange = ({ target }) => {
-    this.setState({ email: target.value });
+    this.setState({ myEmail: target.value });
   };
 
   handlePasswordChange = ({ target }) => {
-    this.setState({ password: target.value });
+    this.setState({ myPassword: target.value });
+  };
+  handlePasswordConfChange = ({ target }) => {
+    this.setState({ myPasswordConf: target.value });
   };
 
   handleSubmit = () => {
     const { dispatch } = this.props;
-    const { email, password } = this.state;
+    const { myUsername, myEmail, myPassword, myPasswordConf } = this.state;
 
-    dispatch(loginUser(email, password));
+    const hello = dispatch(registerUser(myUsername, myEmail, myPassword, myPasswordConf));
+    this.setState({ message: hello });
+    console.log(hello)
   };
 
   render() {
-    const { classes, loginError, isAuthenticated } = this.props;
+    const { classes, registerError, registerSuccess, isAuthenticated } = this.props;
     if (isAuthenticated) {
-      return <Redirect to="/admin" />;
+      return <Redirect to="/user" />;
     } else {
       return (
         <div>
-        <AppBar position="static">
-        <Toolbar>
-            <Typography variant="h6">
+          <AppBar position="static">
+            <Toolbar>
+              <Typography variant="h6">
                 FINBACK670 Assessment
     </Typography>
-        </Toolbar>
-    </AppBar>
-        <Container component="main" maxWidth="xs">
-          <Paper className={classes.paper}>
-            <Avatar className={classes.avatar}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Register
+            </Toolbar>
+          </AppBar>
+          <Container component="main" maxWidth="xs">
+            <Paper className={classes.paper}>
+              <Avatar className={classes.avatar}>
+                <LockOutlinedIcon />
+              </Avatar>
+              <Typography component="h1" variant="h5">
+                Register
             </Typography>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              id="username"
-              label="Username"
-              name="email"
-              onChange={this.handleUserChange}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              onChange={this.handleEmailChange}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              onChange={this.handlePasswordChange}
-            />
-            {loginError && (
-              <Typography component="p" className={classes.errorText}>
-                Incorrect email or password.
-              </Typography>
-            )}
-            <div>
-            <Button
-              type="button"
-              
-              variant="outline-primary"
-              color="primary"
-              className={classes.submit}
-              onClick={this.handleSubmit}
-              style={{marginRight:'5px'}}
-            >
-              Register
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                id="username"
+                label="Username"
+                name="email"
+                onChange={this.handleUserChange}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                onChange={this.handleEmailChange}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                onChange={this.handlePasswordChange}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                name="passwordConf"
+                label="Confirm Pasword"
+                type="password"
+                id="passwordConf"
+                onChange={this.handlePasswordConfChange}
+              />
+              {registerError && (
+                <Typography component="p" className={classes.errorText}>
+                  Email is already in use!
+                </Typography>
+              )}
+              {registerSuccess && (
+                <Typography component="p" className={classes.errorText}>
+                  Account was successfully created!
+                </Typography>
+              )}
+
+              <div>
+                <Button
+                  type="button"
+
+                  variant="outline-primary"
+                  color="primary"
+                  className={classes.submit}
+                  onClick={this.handleSubmit}
+                  style={{ marginRight: '5px' }}
+                >
+                  Register
             </Button>
-            <Button
-              type="button"
-              
-              variant="outline-primary"
-              color="primary"
-              className={classes.submit}
-              href="/"
-              style={{marginRight:'5px'}}
-            >
-              Sign in
+                <Button
+                  type="button"
+
+                  variant="outline-primary"
+                  color="primary"
+                  className={classes.submit}
+                  href="/"
+                  style={{ marginRight: '5px' }}
+                >
+                  Sign in
             </Button>
-            <Button
-              type="button"
-              
-              variant="outline-primary"
-              color="primary"
-              className={classes.submit}
-              href="/home"
-              style={{marginRight:'5px'}}
-            >
-              Home 
+                <Button
+                  type="button"
+
+                  variant="outline-primary"
+                  color="primary"
+                  className={classes.submit}
+                  href="/home"
+                  style={{ marginRight: '5px' }}
+                >
+                  Home
             </Button>
-            </div>
-          </Paper>
-        </Container>
+              </div>
+            </Paper>
+          </Container>
         </div>
       );
     }
@@ -160,10 +181,10 @@ class Login extends Component {
 
 function mapStateToProps(state) {
   return {
-    isLoggingIn: state.auth.isLoggingIn,
-    loginError: state.auth.loginError,
+    registerError: state.auth.registerError,
+    registerSuccess: state.auth.registerSuccess,
     isAuthenticated: state.auth.isAuthenticated
   };
 }
 
-export default withStyles(styles)(connect(mapStateToProps)(Login));
+export default withStyles(styles)(connect(mapStateToProps)(register));

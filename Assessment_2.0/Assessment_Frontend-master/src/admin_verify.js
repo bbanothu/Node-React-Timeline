@@ -4,7 +4,7 @@ import { Route, Switch } from "react-router-dom";
 import { connect } from "react-redux";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-import Admin from "./admin";
+import User from "./admin";
 import Login from "./login";
 
 function App(props) {
@@ -13,12 +13,12 @@ function App(props) {
     <Switch>
       <ProtectedRoute
         exact
-        path="/admin"
-        component={Admin}
+        path="/user"
+        component={User}
         isAuthenticated={isAuthenticated}
         isVerifying={isVerifying}
       />
-      <Route path="/login" component={Login} />
+      <Route path="/" component={Login} />
     </Switch>
   );
 }
