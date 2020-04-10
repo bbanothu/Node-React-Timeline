@@ -15,15 +15,14 @@ class Home extends Component {
             myValue: '',
             posts: []
         }
-        this.loadJson(this.state.myUser)
+        this.loadPosts(this.state.myUser)
     }
 
     // functions
-    loadJson() {
-        fetch("http://localhost:3000/api/getAllPosts")
-            .then(res => res.json()).then((data) => {
-                this.setState({ posts: data })
-            })
+    loadPosts() {
+        axios.get("http://localhost:3000/api/getAllPosts").then((res) => {
+                this.setState({ posts: res.data })
+        })
     }
 
     handleLike(myId) {

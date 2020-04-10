@@ -12,11 +12,10 @@ class admin extends Component {
     super(props);
     this.state = {
       myValue: '',
-      myUser: this.props.user.data,
       likes: [],
       posts: [],
       myPosts: [],
-
+      myUser: this.props.user.data
     }
     this.handleLike = this.handleLike.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -25,24 +24,14 @@ class admin extends Component {
 
 
   loadJson(user) {
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: user.email })
-    };
-    const requestOptions1 = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: user.username })
-    };
-    fetch("http://localhost:3000/api/getAllLikes", requestOptions).then(res => res.json()).then((data) => {
-      this.setState({ likes: data })
+    axios.post("http://localhost:3000/api/getAllLikes", { email: user.email }).then((res) => {
+      this.setState({ likes: res.data })
     })
-    fetch("http://localhost:3000/api/getAllPosts").then(res => res.json()).then((data) => {
-      this.setState({ posts: data })
+    axios.post("http://localhost:3000/api/getMyPosts", { username: user.username }).then((res) => {
+      this.setState({ myPosts: res.data })
     })
-    fetch("http://localhost:3000/api/getMyPosts", requestOptions1).then(res => res.json()).then((data) => {
-      this.setState({ myPosts: data })
+    axios.get("http://localhost:3000/api/getAllPosts").then((res) => {
+      this.setState({ posts: res.data })
     })
   }
 
@@ -74,8 +63,6 @@ class admin extends Component {
       })
     window.location.reload();
   };
-
-
 
   handleChange = (e) => this.setState({
     myValue: e.target.value
@@ -131,7 +118,6 @@ class admin extends Component {
                   </Typography>
                 </CardContent>
                 <CardActions>
-
                   {(() => {
                     if (this.containsLikes(likes, post.id)) {
                       return (
@@ -165,17 +151,16 @@ class admin extends Component {
           <Toolbar>
             <Typography variant="h6">
               FINBACK670 Assessment
-                    </Typography>
+            </Typography>
             <Button
               type="button"
               variant="primary"
               onClick={this.handleLogout}
               style={{ position: "absolute", right: 10 }}>
               Logout
-                    </Button>
+              </Button>
             {isLoggingOut && <p>Logging Out....</p>}
             {logoutError && <p>Error logging out</p>}
-
           </Toolbar>
         </AppBar>
         <header className="App-header">
@@ -189,7 +174,7 @@ class admin extends Component {
             <Button
               onClick={this.handleSubmit.bind(this, this.state.myValue, user.data.username)}
               variant="outline-primary">Submit Post
-                    </Button>
+            </Button>
             <div style={{ paddingTop: '20px' }}>
               {post(this.state.likes.data, this.state.posts.data, this.state.myPosts.data)}
             </div>
