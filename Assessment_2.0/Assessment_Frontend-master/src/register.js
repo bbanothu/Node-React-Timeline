@@ -60,9 +60,7 @@ class register extends Component {
     const { dispatch } = this.props;
     const { myUsername, myEmail, myPassword, myPasswordConf } = this.state;
 
-    const hello = dispatch(registerUser(myUsername, myEmail, myPassword, myPasswordConf));
-    this.setState({ message: hello });
-    console.log(hello)
+    dispatch(registerUser(myUsername, myEmail, myPassword, myPasswordConf));
   };
 
   render() {
