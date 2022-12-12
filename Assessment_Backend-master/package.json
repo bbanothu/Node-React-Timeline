@@ -20,7 +20,7 @@
     "cookie-parser": "^1.4.4",
     "cors": "^2.8.4",
     "dotenv": "^5.0.1",
-    "express": "^4.16.2",
+    "express": "^4.17.3",
     "express-generator": "^4.16.0",
     "lodash": "^4.17.15",
     "pg": "^7.4.1",
